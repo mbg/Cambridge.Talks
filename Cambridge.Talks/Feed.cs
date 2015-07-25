@@ -131,18 +131,20 @@ namespace Cambridge.Talks
             Feed result = new Feed(id);
 
             // construct a URL for the requested feed
-            StringBuilder urlBuilder = new StringBuilder(result.url);
-            urlBuilder.AppendFormat("?reverse_order={0}", reverseOrder);
+            QueryBuilder queryBuilder = new QueryBuilder(result.url);
 
+            // talks.cam ignores the value of reverse_order, so we only add it if it is true
+            if(reverseOrder)
+                queryBuilder.Parameters.Add("reverse_order", reverseOrder);
             if (limit != null)
-                urlBuilder.AppendFormat("&limit={0}", limit);
+                queryBuilder.Parameters.Add("limit", limit);
             if (startTime.HasValue)
-                urlBuilder.AppendFormat("&start_time={0}", startTime.Value.ToUnix());
+                queryBuilder.Parameters.Add("start_time", startTime.Value.ToUnix());
             if (endTime.HasValue)
-                urlBuilder.AppendFormat("&end_time={0}", endTime.Value.ToUnix());
+                queryBuilder.Parameters.Add("end_time", endTime.Value.ToUnix());
             
             // load the xml
-            XmlReader reader = XmlReader.Create(urlBuilder.ToString());
+            XmlReader reader = XmlReader.Create(queryBuilder.ToString());
             XDocument doc = XDocument.Load(reader);
             XElement root = doc.Root;
 
